@@ -19,7 +19,7 @@
 				<input type="radio" name="input_type" value="hsl" disabled>HSL<br>
 				<input type="radio" name="input_type" value="cymk" disabled>CYMK<br>
 			</section>
-			Enable selection preview?: <input type="checkbox" name="preview" checked><br>
+			Enable selection preview?: <input type="checkbox" name="preview"><br>
 			<button type="submit">Play the game</button>
 		</form>
 	</body>
