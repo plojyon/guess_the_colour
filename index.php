@@ -23,5 +23,6 @@
 			Enable selection preview?: <input type="checkbox" name="preview"><br>
 			<button type="submit">Play the game</button>
 		</form>
+		<h6>Looking for the <a href="escape_room">other thing</a>?</h6>
 	</body>
 </html>
