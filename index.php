@@ -16,9 +16,9 @@
 				<strong>Which input type would you like to use?</strong><br>
 				<input type="radio" name="input_type" value="hex" checked>Hex<br>
 				<input type="radio" name="input_type" value="rgb">RGB<br>
-				<input type="radio" name="input_type" value="hsv" disabled>HSV<br>
+				<!--<input type="radio" name="input_type" value="hsv" disabled>HSV<br>
 				<input type="radio" name="input_type" value="hsl" disabled>HSL<br>
-				<input type="radio" name="input_type" value="cymk" disabled>CYMK<br>
+				<input type="radio" name="input_type" value="cymk" disabled>CYMK<br>-->
 			</section>
 			Enable selection preview?: <input type="checkbox" name="preview"><br>
 			<button type="submit">Play the game</button>

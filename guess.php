@@ -92,7 +92,16 @@
 			<script>
 				function addResult(de, target, yours) {
 					target_label = document.createElement("p");
-					target_label.innerText = "(#"+target+") Target :";
+					<?php
+						if ($input_type == "hex")
+							echo 'target_label.innerText = "(#"+target+") Target :";';
+						elseif ($input_type == "rgb") {
+							echo 'rgb = hex_to_rgb(target);';
+							echo 'target_label.innerText = "("+rgb[0]+","+rgb[1]+","+rgb[2]+") Target :";';
+						}
+						else
+							echo 'target_label.innerText = "Target :";';
+					?>
 
 					target_preview = document.createElement("div");
 					target_preview.classList.add("colour_preview");
@@ -106,7 +115,16 @@
 					yours_preview.style.backgroundColor = "#"+yours;
 
 					yours_label = document.createElement("p");
-					yours_label.innerText = ": Yours (#"+yours+")";
+					<?php
+						if ($input_type == "hex")
+							echo 'yours_label.innerText = ": Yours (#"+yours+")";';
+						elseif ($input_type == "rgb") {
+							echo 'rgb = hex_to_rgb(yours);';
+							echo 'yours_label.innerText = ": Yours ("+rgb[0]+","+rgb[1]+","+rgb[2]+")";';
+						}
+						else
+							echo 'yours_label.innerText = ": Yours";';
+					?>
 
 
 					result = document.createElement("div");
