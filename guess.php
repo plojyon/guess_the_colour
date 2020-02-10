@@ -92,7 +92,7 @@
 			<script>
 				function addResult(de, target, yours) {
 					target_label = document.createElement("p");
-					target_label.innerText = "Target :";
+					target_label.innerText = "(#"+target+") Target :";
 
 					target_preview = document.createElement("div");
 					target_preview.classList.add("colour_preview");
@@ -106,7 +106,7 @@
 					yours_preview.style.backgroundColor = "#"+yours;
 
 					yours_label = document.createElement("p");
-					yours_label.innerText = ": Yours";
+					yours_label.innerText = ": Yours (#"+yours+")";
 
 
 					result = document.createElement("div");
