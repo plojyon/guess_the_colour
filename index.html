@@ -10,6 +10,13 @@
 		// fallbacks
 		input_type = "hex";
 		preview = false;
+		modes = {
+			"hex": "Hexadecimal (6 digits)",
+			"rgb": "RGB (0-255, 0-255, 0-255)",
+			"hsv": "HSV (0-360, 0-100, 0-100)",
+			"hsl": "HSL (0-360, 0-100, 0-100)",
+			"cymk": "CYMK (0-100, 0-100, 0-100, 0-100)"
+		}
 	</script>
 	<style>
 		#guess {
@@ -75,17 +82,18 @@
 				<strong>Which input type would you like to use?</strong><br>
 				<input type="radio" name="input_type" value="hex" checked>Hex<br>
 				<input type="radio" name="input_type" value="rgb">RGB<br>
-				<!--<input type="radio" name="input_type" value="hsv" disabled>HSV<br>
-					<input type="radio" name="input_type" value="hsl" disabled>HSL<br>
-					<input type="radio" name="input_type" value="cymk" disabled>CYMK<br>-->
-			</section>
-			Enable selection preview?: <input type="checkbox" name="preview"><br>
-			<button type="submit">Play the game</button>
+				<input type="radio" name="input_type" value="hsv">HSV<br>
+				<input type="radio" name="input_type" value="hsl">HSL<br>
+				<input type="radio" name="input_type" value="cymk">CYMK<br>
+			</section><br>
+			Enable selection preview: <input type="checkbox" name="preview"><br>
+			<button type="submit">Play</button>
 		</form>
 	</div>
 	<div id="guess" style="display: none">
 		<form id="myForm" onsubmit="return false;">
 			<h1>What colour is this?</h1>
+			<p>Current mode: <span id="mode"></span></p>
 			<div id="colour_show"></div>
 			<div id="preview"></div>
 
@@ -94,12 +102,35 @@
 					<label for="hex" class="input_type_hex input_type">#</label>
 					<input type="text" id="hex" class="wide input_type_hex input_type" onkeyup="updatePreview();">
 
-					<label for="r" class="input_type_rgb input_type">R</label>
-					<input type="text" id="r" class="short input_type_rgb input_type" onkeyup="updatePreview();">
-					<label for="g" class="input_type_rgb input_type">G</label>
-					<input type="text" id="g" class="short input_type_rgb input_type" onkeyup="updatePreview();">
-					<label for="b" class="input_type_rgb input_type">B</label>
-					<input type="text" id="b" class="short input_type_rgb input_type" onkeyup="updatePreview();">
+					<label for="rgb_r" class="input_type_rgb input_type">R</label>
+					<input type="text" id="rgb_r" class="short input_type_rgb input_type" onkeyup="updatePreview();">
+					<label for="rgb_g" class="input_type_rgb input_type">G</label>
+					<input type="text" id="rgb_g" class="short input_type_rgb input_type" onkeyup="updatePreview();">
+					<label for="rgb_b" class="input_type_rgb input_type">B</label>
+					<input type="text" id="rgb_b" class="short input_type_rgb input_type" onkeyup="updatePreview();">
+
+					<label for="hsl_h" class="input_type_hsl input_type">H</label>
+					<input type="text" id="hsl_h" class="short input_type_hsl input_type" onkeyup="updatePreview();">
+					<label for="hsl_s" class="input_type_hsl input_type">S</label>
+					<input type="text" id="hsl_s" class="short input_type_hsl input_type" onkeyup="updatePreview();">
+					<label for="hsl_l" class="input_type_hsl input_type">L</label>
+					<input type="text" id="hsl_l" class="short input_type_hsl input_type" onkeyup="updatePreview();">
+
+					<label for="hsv_h" class="input_type_hsv input_type">H</label>
+					<input type="text" id="hsv_h" class="short input_type_hsv input_type" onkeyup="updatePreview();">
+					<label for="hsv_s" class="input_type_hsv input_type">S</label>
+					<input type="text" id="hsv_s" class="short input_type_hsv input_type" onkeyup="updatePreview();">
+					<label for="hsv_v" class="input_type_hsv input_type">V</label>
+					<input type="text" id="hsv_v" class="short input_type_hsv input_type" onkeyup="updatePreview();">
+
+					<label for="cymk_c" class="input_type_cymk input_type">C</label>
+					<input type="text" id="cymk_c" class="short input_type_cymk input_type" onkeyup="updatePreview();">
+					<label for="cymk_y" class="input_type_cymk input_type">Y</label>
+					<input type="text" id="cymk_y" class="short input_type_cymk input_type" onkeyup="updatePreview();">
+					<label for="cymk_m" class="input_type_cymk input_type">M</label>
+					<input type="text" id="cymk_m" class="short input_type_cymk input_type" onkeyup="updatePreview();">
+					<label for="cymk_k" class="input_type_cymk input_type">K</label>
+					<input type="text" id="cymk_k" class="short input_type_cymk input_type" onkeyup="updatePreview();">
 				</section>
 				<button type="submit" onclick="check();">OK</button>
 			</center>
@@ -109,6 +140,7 @@
 			function init() {
 				input_type = document.querySelector('input[name="input_type"]:checked').value;
 				preview = document.querySelector('input[name="preview"]').checked;
+				document.getElementById("mode").innerText = modes[input_type];
 				document.getElementById("setup").style.display = "none";
 				document.getElementById("guess").style.display = "block";
 				setInput(input_type);
@@ -127,11 +159,23 @@
 					target_label.innerText = "(#" + target + ") Target :";
 				}
 				else if (input_type == "rgb") {
-					rgb = hex_to_rgb(target);
+					rgb = roundAll(hex_to_rgb(target));
 					target_label.innerText = "(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ") Target :";
 				}
+				else if (input_type == "hsv") {
+					hsv = roundAll(hex_to_hsv(target));
+					target_label.innerText = "(" + hsv[0] + "," + hsv[1] + "," + hsv[2] + ") Target :";
+				}
+				else if (input_type == "hsl") {
+					hsl = roundAll(hex_to_hsl(target));
+					target_label.innerText = "(" + hsl[0] + "," + hsl[1] + "," + hsl[2] + ") Target :";
+				}
+				else if (input_type == "cymk") {
+					cymk = roundAll(hex_to_cymk(target));
+					target_label.innerText = "(" + cymk[0] + "," + cymk[1] + "," + cymk[2] + "," + cymk[3] + ") Target :";
+				}
 				else {
-					target_label.innerText = "Target :";
+					target_label.innerText = "(?) Target :";
 				}
 
 				target_preview = document.createElement("div");
@@ -151,11 +195,23 @@
 					yours_label.innerText = ": Yours (#" + yours + ")";
 				}
 				else if (input_type == "rgb") {
-					rgb = hex_to_rgb(yours);
+					rgb = roundAll(hex_to_rgb(yours));
 					yours_label.innerText = ": Yours (" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
 				}
+				else if (input_type == "hsv") {
+					hsv = roundAll(hex_to_hsv(yours));
+					yours_label.innerText = ": Yours (" + hsv[0] + "," + hsv[1] + "," + hsv[2] + ")";
+				}
+				else if (input_type == "hsl") {
+					hsl = roundAll(hex_to_hsl(yours));
+					yours_label.innerText = ": Yours (" + hsl[0] + "," + hsl[1] + "," + hsl[2] + ")";
+				}
+				else if (input_type == "cymk") {
+					cymk = roundAll(hex_to_cymk(yours));
+					yours_label.innerText = ": Yours (" + cymk[0] + "," + cymk[1] + "," + cymk[2] + "," + cymk[3] + ")";
+				}
 				else {
-					yours_label.innerText = ": Yours";
+					yours_label.innerText = ": Yours (?)";
 				}
 
 				result = document.createElement("div");
@@ -191,29 +247,29 @@
 					rgb = hex_to_rgb(hex);
 				}
 				else if (input_type == "rgb") {
-					r = document.getElementById("r").value;
-					g = document.getElementById("g").value;
-					b = document.getElementById("b").value;
+					r = document.getElementById("rgb_r").value;
+					g = document.getElementById("rgb_g").value;
+					b = document.getElementById("rgb_b").value;
 					rgb = [r, g, b];
 				}
 				else if (input_type == "hsl") {
-					h = document.getElementById("h").value;
-					s = document.getElementById("s").value;
-					l = document.getElementById("l").value;
-					rgb = hsl_to_rgb([h, s, l]);
+					h = document.getElementById("hsl_h").value;
+					s = document.getElementById("hsl_s").value;
+					l = document.getElementById("hsl_l").value;
+					rgb = roundAll(hsl_to_rgb([h, s, l]));
 				}
 				else if (input_type == "hsv") {
-					h = document.getElementById("h").value;
-					s = document.getElementById("s").value;
-					v = document.getElementById("v").value;
-					rgb = hsl_to_rgb(hsv_to_hsl([h, s, v]));
+					h = document.getElementById("hsv_h").value;
+					s = document.getElementById("hsv_s").value;
+					v = document.getElementById("hsv_v").value;
+					rgb = roundAll(hsl_to_rgb(hsv_to_hsl([h, s, v])));
 				}
 				else if (input_type == "cymk") {
-					c = document.getElementById("c").value;
-					y = document.getElementById("y").value;
-					m = document.getElementById("m").value;
-					k = document.getElementById("k").value;
-					rgb = cymk_to_rgb([c, y, m, k]);
+					c = document.getElementById("cymk_c").value;
+					y = document.getElementById("cymk_y").value;
+					m = document.getElementById("cymk_m").value;
+					k = document.getElementById("cymk_k").value;
+					rgb = roundAll(cymk_to_rgb([c, y, m, k]));
 				}
 				return rgb;
 			}
