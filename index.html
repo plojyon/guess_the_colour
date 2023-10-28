@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Guess the colour</title>
+	<script src="colours.js" charset="utf-8"></script>
+	<script>
+		// fallbacks
+		input_type = "hex";
+		preview = false;
+	</script>
+	<style>
+		#guess {
+			text-align: center;
+		}
+
+		#colour_show,
+		#preview {
+			height: 5em;
+			width: 10em;
+			margin-top: 2.5em;
+			margin-bottom: 2em;
+			border: 5px outset gray;
+			display: inline-block;
+		}
+
+		input.short {
+			width: 2em;
+		}
+
+		input.wide {
+			width: 4em;
+		}
+
+		section {
+			margin: 0.5em;
+		}
+
+		#input_type_select {
+			text-align: left;
+			display: inline-block;
+		}
+
+		button {
+			display: block;
+			margin: 1em;
+			padding: 0.5em 1em;
+		}
+
+		.result p {
+			display: inline;
+			line-height: 2.5em;
+		}
+
+		.result strong {
+			margin: 0 0.5em;
+		}
+
+		.result .colour_preview {
+			height: 2em;
+			width: 2.5em;
+			display: inline-block;
+			position: relative;
+			top: 0.5em;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="setup">
+		<form onsubmit="init(); return false;">
+			<section id="input_type_select">
+				<strong>Which input type would you like to use?</strong><br>
+				<input type="radio" name="input_type" value="hex" checked>Hex<br>
+				<input type="radio" name="input_type" value="rgb">RGB<br>
+				<!--<input type="radio" name="input_type" value="hsv" disabled>HSV<br>
+					<input type="radio" name="input_type" value="hsl" disabled>HSL<br>
+					<input type="radio" name="input_type" value="cymk" disabled>CYMK<br>-->
+			</section>
+			Enable selection preview?: <input type="checkbox" name="preview"><br>
+			<button type="submit">Play the game</button>
+		</form>
+	</div>
+	<div id="guess" style="display: none">
+		<form id="myForm" onsubmit="return false;">
+			<h1>What colour is this?</h1>
+			<div id="colour_show"></div>
+			<div id="preview"></div>
+
+			<center>
+				<section id="inputs">
+					<label for="hex" class="input_type_hex input_type">#</label>
+					<input type="text" id="hex" class="wide input_type_hex input_type" onkeyup="updatePreview();">
+
+					<label for="r" class="input_type_rgb input_type">R</label>
+					<input type="text" id="r" class="short input_type_rgb input_type" onkeyup="updatePreview();">
+					<label for="g" class="input_type_rgb input_type">G</label>
+					<input type="text" id="g" class="short input_type_rgb input_type" onkeyup="updatePreview();">
+					<label for="b" class="input_type_rgb input_type">B</label>
+					<input type="text" id="b" class="short input_type_rgb input_type" onkeyup="updatePreview();">
+				</section>
+				<button type="submit" onclick="check();">OK</button>
+			</center>
+		</form>
+		<div id="results"></div>
+		<script>
+			function init() {
+				input_type = document.querySelector('input[name="input_type"]:checked').value;
+				preview = document.querySelector('input[name="preview"]').checked;
+				document.getElementById("setup").style.display = "none";
+				document.getElementById("guess").style.display = "block";
+				setInput(input_type);
+				if (preview) {
+					document.getElementById("preview").style.display = "inline-block";
+				} else {
+					document.getElementById("preview").style.display = "none";
+				}
+				return false;
+			}
+
+			function addResult(de, target, yours) {
+				target_label = document.createElement("p");
+
+				if (input_type == "hex") {
+					target_label.innerText = "(#" + target + ") Target :";
+				}
+				else if (input_type == "rgb") {
+					rgb = hex_to_rgb(target);
+					target_label.innerText = "(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ") Target :";
+				}
+				else {
+					target_label.innerText = "Target :";
+				}
+
+				target_preview = document.createElement("div");
+				target_preview.classList.add("colour_preview");
+				target_preview.style.backgroundColor = "#" + target;
+
+				delta = document.createElement("strong");
+				delta.innerText = Math.round(de);
+
+				yours_preview = document.createElement("div");
+				yours_preview.classList.add("colour_preview");
+				yours_preview.style.backgroundColor = "#" + yours;
+
+				yours_label = document.createElement("p");
+
+				if (input_type == "hex") {
+					yours_label.innerText = ": Yours (#" + yours + ")";
+				}
+				else if (input_type == "rgb") {
+					rgb = hex_to_rgb(yours);
+					yours_label.innerText = ": Yours (" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+				}
+				else {
+					yours_label.innerText = ": Yours";
+				}
+
+				result = document.createElement("div");
+				result.classList.add("result");
+				result.appendChild(target_label);
+				result.appendChild(target_preview);
+				result.appendChild(delta);
+				result.appendChild(yours_preview);
+				result.appendChild(yours_label);
+
+				document.getElementById("results").appendChild(result);
+			}
+
+			window.onload = function () {
+				newColour();
+			}
+
+			function newColour() {
+				colour = Math.random().toString(16).substr(2, 6);
+				document.getElementById('colour_show').style.backgroundColor = '#' + colour;
+			}
+
+			function updatePreview() {
+				if (preview) {
+					currentColour = rgb_to_hex(getCurrentColour());
+					document.getElementById("preview").style.backgroundColor = "#" + currentColour;
+				}
+			}
+
+			function getCurrentColour() {
+				if (input_type == "hex") {
+					hex = document.getElementById("hex").value;
+					rgb = hex_to_rgb(hex);
+				}
+				else if (input_type == "rgb") {
+					r = document.getElementById("r").value;
+					g = document.getElementById("g").value;
+					b = document.getElementById("b").value;
+					rgb = [r, g, b];
+				}
+				else if (input_type == "hsl") {
+					h = document.getElementById("h").value;
+					s = document.getElementById("s").value;
+					l = document.getElementById("l").value;
+					rgb = hsl_to_rgb([h, s, l]);
+				}
+				else if (input_type == "hsv") {
+					h = document.getElementById("h").value;
+					s = document.getElementById("s").value;
+					v = document.getElementById("v").value;
+					rgb = hsl_to_rgb(hsv_to_hsl([h, s, v]));
+				}
+				else if (input_type == "cymk") {
+					c = document.getElementById("c").value;
+					y = document.getElementById("y").value;
+					m = document.getElementById("m").value;
+					k = document.getElementById("k").value;
+					rgb = cymk_to_rgb([c, y, m, k]);
+				}
+				return rgb;
+			}
+
+			function check() {
+				selected = rgb_to_lab(getCurrentColour());
+				target = rgb_to_lab(hex_to_rgb(colour));
+				de = deltaE(target, selected);
+				addResult(de, colour, rgb_to_hex(rgb).toLowerCase());
+				newColour();
+				return false;
+			}
+
+			function setInput(type) {
+				inputs_to_hide = document.getElementsByClassName('input_type');
+				for (i of inputs_to_hide) {
+					i.style.display = "none";
+				}
+
+				inputs_to_show = document.getElementsByClassName("input_type_" + type);
+				for (i of inputs_to_show) {
+					i.style.display = "inline-block";
+				}
+			}
+		</script>
+	</div>
+</body>
+
+</html>
